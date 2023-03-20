@@ -1,3 +1,6 @@
+import json
+
+
 def get_name_hh(data):
     name = data['name']
     return name
@@ -34,7 +37,6 @@ def get_city_hh(data):
 
 
 def get_name_sj(data):
-
     name = data['profession']
 
     return name
@@ -71,3 +73,19 @@ def get_city_sj(data):
         city = data['address']
     return city
 
+
+def get_sorting(vacancies):
+    """ Должен сортировать любой список вакансий по ежемесячной оплате (gt, lt magic methods) """
+    sorted_salary = sorted(vacancies, key=lambda v: v.salary, reverse=True)
+    return sorted_salary
+
+
+def get_top(vacancies, top_count):
+    """ Должен возвращать {top_count} записей из вакансий по зарплате (iter, next magic methods) """
+    sorted_salary = sorted(vacancies, key=lambda v: v.salary, reverse=True)[:top_count]
+    return sorted_salary
+
+
+def to_file(data):
+    with open('vacancy.json', 'w') as f:
+        json.dump(data, f)

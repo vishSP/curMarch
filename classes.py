@@ -12,6 +12,9 @@ class Engine(ABC):
 
     @abstractmethod
     def get_request(self, url: str, params: dict, headers=None):
+        """
+        Абстрактный метеод принимающий ссылку и параметры и отдающий данные
+        """
 
         if headers is None:
             response = requests.get(url=url, params=params)
@@ -27,14 +30,20 @@ class Engine(ABC):
 class HH(Engine):
 
     def __init__(self):
-        super().__init__()
         self.__url = 'https://api.hh.ru/vacancies/'
         self.__params = {'text': f'Name:Python', 'per_page': 100, 'area': '113'}
 
     def get_request(self):
+        """
+        Переобразовывает ссылку в формат списка джисон
+        """
         return super().get_request(url=self.__url, params=self.__params).json()
 
     def get_formatted_data(self, unformatted_data):
+        """
+        Форматирует данные для удобной работы с ними
+
+        """
 
         about_vacancy = {
             'site_name': 'HH.ru',
@@ -48,19 +57,20 @@ class HH(Engine):
         return about_vacancy
 
     def get_vacancy_list(self):
+        """
+        Метод получает готовый лист вакансий
 
+        """
         vacancy_list = []
         page = 0
 
         while True:
-            self.__params['pages'] = page
-
+            self.__params['page'] = page
             data = self.get_request()
             for item in data.get('items'):
                 vacancy_list.append(Vacancy(data=self.get_formatted_data(unformatted_data=item)))
-            if len(vacancy_list)==500:
-                print(f'Всего вакансий {len(vacancy_list)}')
-
+            if len(vacancy_list) == 500:
+                print(f'Всего вакансий C hh.ru - {len(vacancy_list)}')
                 break
             else:
                 page += 1
@@ -76,9 +86,16 @@ class Superjob(Engine):
         self.__params = {"keywords": 'Python', "count": 100}
 
     def get_request(self):
+        """
+                Переобразовывает ссылку в формат списка джисон
+                """
         return super().get_request(url=self.__url, params=self.__params, headers=self.my_auth_data).json()
 
     def get_formatted_data(self, unformatted_data):
+        """
+        Форматирует данные для удобной работы с ними
+
+        """
 
         about_vacancy = {
             'site_name': 'Superjob.ru',
@@ -105,7 +122,7 @@ class Superjob(Engine):
             page += 1
 
             if page == 6:
-                print(f'Найдено вакансий:{len(vacancy_list)}')
+                print(f'Всего вакансий с superjob.ru- {len(vacancy_list)}')
                 break
 
         return vacancy_list
@@ -261,9 +278,3 @@ class SJVacancy(Vacancy, CountMixin):  # add counter mixin
 
     def __str__(self):
         return f'\nSJ: {self.name}, зарплата {self.salary},\nОписание: {self.discription},\nСсылка: {self.url}\nгород: {self.city}\n'
-
-hh=HH()
-hh_vacancy= hh.get_vacancy_list()
-
-
-print(get_top(hh_vacancy,2))
